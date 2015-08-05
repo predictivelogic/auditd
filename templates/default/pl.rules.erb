@@ -39,6 +39,16 @@
 -a exit,always -F arch=b32 -S adjtimex -S settimeofday -S stime -S clock_settime -k time
 -a exit,always -F arch=b64 -S adjtimex -S settimeofday -S clock_settime -k time
 
+## Record all files that have been written to or attributes changed by any user that logged
+## in with a User ID >= 500
+-a exit,always -S open -F auid>=500 -F perm=wa filemod
+
+## Record changes to /etc/sudoers
+-w /etc/sudoers -p wa -k sudoers_change
+
+## Record changes to /etc
+-w /etc/ -p wa etc_changes
+
 ## Use stunnel
 -w /usr/sbin/stunnel -p x -k stunnel
 
@@ -101,13 +111,13 @@
 
 ## pam configuration
 -w /etc/pam.d/ -p wa -k pam
--w /etc/security/limits.conf -p wa  -k pam
+-w /etc/security/limits.conf -p wa  -k pam
 -w /etc/security/pam_env.conf -p wa -k pam
 -w /etc/security/namespace.conf -p wa -k pam
 -w /etc/security/namespace.init -p wa -k pam
 
 ## GDS specific secrets
--w /etc/puppet/ssl -p wa -k puppet_ssl
+## -w /etc/puppet/ssl -p wa -k puppet_ssl
 
 ## postfix configuration
 -w /etc/aliases -p wa -k mail
@@ -149,6 +159,12 @@
 -w /sbin/poweroff -p x -k power
 -w /sbin/reboot -p x -k power
 -w /sbin/halt -p x -k power
+
+## Monitor PLUS
+-w /usr/local/jboss/server/plus/deploy/plus-ear.ear -p wa -k plus
+-w /usr/local/jboss/server/plus/data -p wa -k plus
+-w /usr/local/jboss/server/plus/conf -p wa -k plus
+
 
 ## Make the configuration immutable
 -e 2
